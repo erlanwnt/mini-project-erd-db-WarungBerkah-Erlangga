@@ -1,9 +1,14 @@
+CREATE DATABASE WarungBerkah;
+GO
+USE WarungBerkah;
+GO
+
 DROP TABLE IF EXISTS Rincian_Faktur;
 DROP TABLE IF EXISTS Faktur;
 DROP TABLE IF EXISTS Barang;
 DROP TABLE IF EXISTS Distributor;
 
--- 1. Membuat Tabel Distributor
+-- 1. Buat Tabel Distributor
 CREATE TABLE Distributor (
     ID_Distributor VARCHAR(10) PRIMARY KEY,
     Nama_Supplier VARCHAR(100) NOT NULL,
@@ -14,35 +19,35 @@ CREATE TABLE Distributor (
     Detail_Cabang VARCHAR(MAX) 
 );
 
--- 2. Membuat Tabel Barang
+-- 2. Buat Tabel Barang
 CREATE TABLE Barang (
     ID_Barang VARCHAR(10) PRIMARY KEY,
     Nama_Barang VARCHAR(100) NOT NULL,
     Harga_Beli DECIMAL(18, 2),
     Harga_Jual DECIMAL(18, 2),
     Stok INT,
-    -- Fitur Otomatis: Margin (Derived Attribute)
+    -- Fitur Otomatis Margin 
     Margin AS (Harga_Jual - Harga_Beli)
 );
 
--- 3. Membuat Tabel Faktur
+-- 3. Buat Tabel Faktur
 CREATE TABLE Faktur (
     No_Faktur VARCHAR(20) PRIMARY KEY,
     ID_Distributor VARCHAR(10) FOREIGN KEY REFERENCES Distributor(ID_Distributor),
     Tanggal_Pesan DATE,
     Tanggal_Terima DATE,
-    -- Fitur Otomatis: Lama Proses (Derived Attribute)
+    
     Lama_Proses_Hari AS (DATEDIFF(day, Tanggal_Pesan, Tanggal_Terima))
 );
 
--- 4. Membuat Tabel Rincian_Faktur (Entitas Lemah)
+-- 4. Buat Tabel Rincian Faktur
 CREATE TABLE Rincian_Faktur (
     ID_Rincian INT IDENTITY(1,1) PRIMARY KEY,
     No_Faktur VARCHAR(20) FOREIGN KEY REFERENCES Faktur(No_Faktur),
     ID_Barang VARCHAR(10) FOREIGN KEY REFERENCES Barang(ID_Barang),
     Jumlah INT,
     Harga_Beli_Satuan DECIMAL(18, 2),
-    -- Fitur Otomatis: Subtotal
+    -- Subtotal
     Subtotal AS (Jumlah * Harga_Beli_Satuan)
 );
 
@@ -71,5 +76,7 @@ VALUES
 ('F001', 'B002', 5, 14000),
 ('F002', 'B003', 20, 3000),
 ('F003', 'B004', 15, 8000);
+
+-- Hasil Akhir
 SELECT * FROM Faktur;
 SELECT * FROM Barang;
